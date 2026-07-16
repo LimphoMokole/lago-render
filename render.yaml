@@ -60,11 +60,11 @@ services:
       - key: RAILS_LOG_TO_STDOUT
         value: "true"
 
-      - key: LAGO_API_URL
-        value: https://lago-api.onrender.com
+            - key: LAGO_API_URL
+        value: https://lago-api-qi44.onrender.com
 
       - key: LAGO_FRONT_URL
-        value: https://lago-front.onrender.com
+        value: https://lago-front-06kx.onrender.com
 
       - key: LAGO_DISABLE_SIGNUP
         value: "false"
@@ -73,21 +73,21 @@ services:
         value: "false"
 
   - type: web
-  name: lago-front
-  runtime: image
-  plan: free
-  region: frankfurt
-  image:
-    url: docker.io/getlago/front:v1.50.0
-  envVars:
-    - key: API_URL
-      value: https://lago-api-qi44.onrender.com
+    name: lago-front
+    runtime: image
+    plan: free
+    region: frankfurt
+    image:
+      url: docker.io/getlago/front:v1.50.0
+    envVars:
+      - key: API_URL
+        value: https://lago-api-qi44.onrender.com
 
-    - key: LAGO_DOMAIN
-      value: https://lago-front-06kx.onrender.com
+      - key: LAGO_DOMAIN
+        value: https://lago-front-06kx.onrender.com
 
-    - key: APP_ENV
-      value: production
+      - key: APP_ENV
+        value: production
 
-    - key: LAGO_DISABLE_SIGNUP
-      value: "false"
+      - key: LAGO_DISABLE_SIGNUP
+        value: "false"
