@@ -60,7 +60,7 @@ services:
       - key: RAILS_LOG_TO_STDOUT
         value: "true"
 
-            - key: LAGO_API_URL
+      - key: LAGO_API_URL
         value: https://lago-api-qi44.onrender.com
 
       - key: LAGO_FRONT_URL
