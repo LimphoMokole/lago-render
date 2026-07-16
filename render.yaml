@@ -92,15 +92,14 @@ services:
       - key: LAGO_DISABLE_SIGNUP
         value: "false"
 
-    - type: web
+  - type: web
     name: lago-migrate
     runtime: image
     plan: free
     region: frankfurt
     image:
       url: docker.io/getlago/api:v1.50.0
-    dockerCommand: /bin/sh -c 'bundle exec rails db:migrate && bundle exec rails roles:seed_predefined && bundle exec rails server -b 0.0.0.0 -p ${PORT:-10000}'
-    healthCheckPath: /health
+    dockerCommand: bundle exec rails db:migrate
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -120,19 +119,31 @@ services:
           property: connectionString
 
       - key: SECRET_KEY_BASE
-        sync: false
+        fromService:
+          type: web
+          name: lago-api
+          envVarKey: SECRET_KEY_BASE
 
       - key: LAGO_RSA_PRIVATE_KEY
         sync: false
 
       - key: LAGO_ENCRYPTION_PRIMARY_KEY
-        sync: false
+        fromService:
+          type: web
+          name: lago-api
+          envVarKey: LAGO_ENCRYPTION_PRIMARY_KEY
 
       - key: LAGO_ENCRYPTION_DETERMINISTIC_KEY
-        sync: false
+        fromService:
+          type: web
+          name: lago-api
+          envVarKey: LAGO_ENCRYPTION_DETERMINISTIC_KEY
 
       - key: LAGO_ENCRYPTION_KEY_DERIVATION_SALT
-        sync: false
+        fromService:
+          type: web
+          name: lago-api
+          envVarKey: LAGO_ENCRYPTION_KEY_DERIVATION_SALT
 
       - key: RAILS_ENV
         value: production
