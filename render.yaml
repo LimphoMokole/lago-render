@@ -92,17 +92,14 @@ services:
       - key: LAGO_DISABLE_SIGNUP
         value: "false"
 
-  - type: web
+    - type: web
     name: lago-migrate
     runtime: image
     plan: free
     region: frankfurt
     image:
       url: docker.io/getlago/api:v1.50.0
-    dockerCommand: >-
-      /bin/sh -c "bundle exec rails db:migrate &&
-      bundle exec rails roles:seed_predefined &&
-      bundle exec rails server -b 0.0.0.0 -p ${PORT:-10000}"
+    dockerCommand: /bin/sh -c 'bundle exec rails db:migrate && bundle exec rails roles:seed_predefined && bundle exec rails server -b 0.0.0.0 -p ${PORT:-10000}'
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
