@@ -99,7 +99,11 @@ services:
     region: frankfurt
     image:
       url: docker.io/getlago/api:v1.50.0
-    dockerCommand: ./scripts/migrate.sh
+    dockerCommand: >-
+      /bin/sh -c "bundle exec rails db:migrate &&
+      bundle exec rails roles:seed_predefined &&
+      bundle exec rails server -b 0.0.0.0 -p ${PORT:-10000}"
+    healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -119,31 +123,34 @@ services:
           property: connectionString
 
       - key: SECRET_KEY_BASE
-        fromService:
-          type: web
-          name: lago-api
-          envVarKey: SECRET_KEY_BASE
+        sync: false
 
       - key: LAGO_RSA_PRIVATE_KEY
         sync: false
 
       - key: LAGO_ENCRYPTION_PRIMARY_KEY
-        fromService:
-          type: web
-          name: lago-api
-          envVarKey: LAGO_ENCRYPTION_PRIMARY_KEY
+        sync: false
 
       - key: LAGO_ENCRYPTION_DETERMINISTIC_KEY
-        fromService:
-          type: web
-          name: lago-api
-          envVarKey: LAGO_ENCRYPTION_DETERMINISTIC_KEY
+        sync: false
 
       - key: LAGO_ENCRYPTION_KEY_DERIVATION_SALT
-        fromService:
-          type: web
-          name: lago-api
-          envVarKey: LAGO_ENCRYPTION_KEY_DERIVATION_SALT
+        sync: false
 
       - key: RAILS_ENV
         value: production
+
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
+
+      - key: LAGO_API_URL
+        value: https://lago-api-qi44.onrender.com
+
+      - key: LAGO_FRONT_URL
+        value: https://lago-front-06kx.onrender.com
+
+      - key: LAGO_DISABLE_SIGNUP
+        value: "false"
+
+      - key: LAGO_USE_AWS_S3
+        value: "false"
