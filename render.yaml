@@ -24,7 +24,6 @@ services:
       url: docker.io/getlago/api:v1.50.0
 
     dockerCommand: ./scripts/start.api.sh
-    preDeployCommand: bundle exec rails db:migrate
     healthCheckPath: /health
 
     envVars:
@@ -78,7 +77,6 @@ services:
       - key: LAGO_USE_AWS_S3
         value: "false"
 
-      # Disable invoice PDFs until Gotenberg is added
       - key: LAGO_DISABLE_PDF_GENERATION
         value: "true"
 
