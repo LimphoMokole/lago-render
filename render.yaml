@@ -1,263 +1,424 @@
 databases:
+
   - name: lago-postgres
+
     databaseName: lago
+
     user: lago
-    plan: free
-    region: frankfurt
 
+    plan: free
+
+    region: frankfurt
+ 
 services:
-  # Redis / Key Value store
+
+  # Redis / Key Value
+
   - type: keyvalue
+
     name: lago-redis
+
     plan: free
+
     region: frankfurt
+
     ipAllowList: []
-
+ 
   # Lago API
+
   - type: web
+
     name: lago-api
+
     runtime: image
+
     plan: free
+
     region: frankfurt
-
+ 
     image:
-      url: docker.io/getlago/api:v1.50.0
 
+      url: docker.io/getlago/api:v1.50.0
+ 
     dockerCommand: ./scripts/start.api.sh
+
     healthCheckPath: /health
-
+ 
     envVars:
+
       - key: DATABASE_URL
+
         fromDatabase:
+
           name: lago-postgres
-          property: connectionString
 
+          property: connectionString
+ 
       - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: lago-redis
-          property: connectionString
 
+        fromService:
+
+          type: keyvalue
+
+          name: lago-redis
+
+          property: connectionString
+ 
       - key: LAGO_REDIS_CACHE_URL
+
         fromService:
+
           type: keyvalue
+
           name: lago-redis
+
           property: connectionString
-
+ 
       - key: SECRET_KEY_BASE
-        generateValue: true
 
+        generateValue: true
+ 
       - key: LAGO_RSA_PRIVATE_KEY
+
         sync: false
-
+ 
       - key: LAGO_ENCRYPTION_PRIMARY_KEY
-        generateValue: true
 
+        generateValue: true
+ 
       - key: LAGO_ENCRYPTION_DETERMINISTIC_KEY
-        generateValue: true
 
+        generateValue: true
+ 
       - key: LAGO_ENCRYPTION_KEY_DERIVATION_SALT
+
         generateValue: true
-
+ 
       - key: RAILS_ENV
+
         value: production
-
+ 
       - key: RAILS_LOG_TO_STDOUT
+
         value: "true"
-
+ 
       - key: LAGO_API_URL
+
         value: https://lago-api-qi44.onrender.com
-
+ 
       - key: LAGO_FRONT_URL
+
         value: https://lago-front-06kx.onrender.com
-
+ 
       - key: LAGO_DISABLE_SIGNUP
-        value: "false"
 
-      - key: LAGO_USE_AWS_S3
         value: "false"
+ 
+      - key: LAGO_USE_AWS_S3
+
+        value: "false"
+ 
+      # Enable invoice / credit note / receipt PDF generation
 
       - key: LAGO_DISABLE_PDF_GENERATION
-        value: "true"
 
+        value: "false"
+ 
+      # Your deployed Gotenberg service
+
+      - key: LAGO_PDF_URL
+
+        value: https://gotenberg-8-ivsv.onrender.com
+ 
   # Lago background worker
+
   - type: worker
+
     name: lago-worker
+
     runtime: image
+
     plan: starter
+
     region: frankfurt
-
+ 
     image:
-      url: docker.io/getlago/api:v1.50.0
 
+      url: docker.io/getlago/api:v1.50.0
+ 
     dockerCommand: ./scripts/start.worker.sh
-
+ 
     envVars:
+
       - key: DATABASE_URL
+
         fromDatabase:
+
           name: lago-postgres
-          property: connectionString
 
+          property: connectionString
+ 
       - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: lago-redis
-          property: connectionString
 
+        fromService:
+
+          type: keyvalue
+
+          name: lago-redis
+
+          property: connectionString
+ 
       - key: LAGO_REDIS_CACHE_URL
+
         fromService:
+
           type: keyvalue
+
           name: lago-redis
+
           property: connectionString
-
+ 
       - key: SECRET_KEY_BASE
+
         fromService:
+
           type: web
+
           name: lago-api
+
           envVarKey: SECRET_KEY_BASE
-
+ 
       - key: LAGO_RSA_PRIVATE_KEY
+
         fromService:
+
           type: web
+
           name: lago-api
+
           envVarKey: LAGO_RSA_PRIVATE_KEY
-
+ 
       - key: LAGO_ENCRYPTION_PRIMARY_KEY
+
         fromService:
+
           type: web
+
           name: lago-api
+
           envVarKey: LAGO_ENCRYPTION_PRIMARY_KEY
-
+ 
       - key: LAGO_ENCRYPTION_DETERMINISTIC_KEY
+
         fromService:
+
           type: web
+
           name: lago-api
+
           envVarKey: LAGO_ENCRYPTION_DETERMINISTIC_KEY
-
+ 
       - key: LAGO_ENCRYPTION_KEY_DERIVATION_SALT
+
         fromService:
+
           type: web
+
           name: lago-api
+
           envVarKey: LAGO_ENCRYPTION_KEY_DERIVATION_SALT
-
+ 
       - key: RAILS_ENV
+
         value: production
-
+ 
       - key: RAILS_LOG_TO_STDOUT
-        value: "true"
 
+        value: "true"
+ 
       - key: LAGO_API_URL
+
         value: https://lago-api-qi44.onrender.com
-
+ 
       - key: LAGO_FRONT_URL
+
         value: https://lago-front-06kx.onrender.com
-
+ 
       - key: LAGO_USE_AWS_S3
+
         value: "false"
-
+ 
       - key: LAGO_DISABLE_PDF_GENERATION
-        value: "true"
 
-  # Lago scheduled billing clock
+        value: "false"
+ 
+      - key: LAGO_PDF_URL
+
+        value: https://gotenberg-8-ivsv.onrender.com
+ 
+  # Lago clock worker
+
+  # Handles scheduled billing / recurring billing timing
+
   - type: worker
+
     name: lago-clock
+
     runtime: image
+
     plan: starter
-    region: frankfurt
 
+    region: frankfurt
+ 
     image:
+
       url: docker.io/getlago/api:v1.50.0
-
+ 
     dockerCommand: ./scripts/start.clock.sh
-
+ 
     envVars:
+
       - key: DATABASE_URL
+
         fromDatabase:
+
           name: lago-postgres
-          property: connectionString
 
+          property: connectionString
+ 
       - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: lago-redis
-          property: connectionString
 
+        fromService:
+
+          type: keyvalue
+
+          name: lago-redis
+
+          property: connectionString
+ 
       - key: LAGO_REDIS_CACHE_URL
+
         fromService:
+
           type: keyvalue
+
           name: lago-redis
+
           property: connectionString
-
+ 
       - key: SECRET_KEY_BASE
+
         fromService:
+
           type: web
+
           name: lago-api
+
           envVarKey: SECRET_KEY_BASE
-
+ 
       - key: LAGO_RSA_PRIVATE_KEY
+
         fromService:
+
           type: web
+
           name: lago-api
+
           envVarKey: LAGO_RSA_PRIVATE_KEY
-
+ 
       - key: LAGO_ENCRYPTION_PRIMARY_KEY
+
         fromService:
+
           type: web
+
           name: lago-api
+
           envVarKey: LAGO_ENCRYPTION_PRIMARY_KEY
-
+ 
       - key: LAGO_ENCRYPTION_DETERMINISTIC_KEY
+
         fromService:
+
           type: web
+
           name: lago-api
+
           envVarKey: LAGO_ENCRYPTION_DETERMINISTIC_KEY
-
+ 
       - key: LAGO_ENCRYPTION_KEY_DERIVATION_SALT
+
         fromService:
+
           type: web
+
           name: lago-api
+
           envVarKey: LAGO_ENCRYPTION_KEY_DERIVATION_SALT
-
+ 
       - key: RAILS_ENV
-        value: production
 
+        value: production
+ 
       - key: RAILS_LOG_TO_STDOUT
-        value: "true"
 
+        value: "true"
+ 
       - key: LAGO_API_URL
-        value: https://lago-api-qi44.onrender.com
 
+        value: https://lago-api-qi44.onrender.com
+ 
       - key: LAGO_FRONT_URL
-        value: https://lago-front-06kx.onrender.com
 
+        value: https://lago-front-06kx.onrender.com
+ 
       - key: LAGO_USE_AWS_S3
+
         value: "false"
-
+ 
       - key: LAGO_DISABLE_PDF_GENERATION
-        value: "true"
 
+        value: "false"
+ 
+      - key: LAGO_PDF_URL
+
+        value: https://gotenberg-8-ivsv.onrender.com
+ 
   # Lago frontend
+
   - type: web
+
     name: lago-front
+
     runtime: image
+
     plan: free
+
     region: frankfurt
-
+ 
     image:
+
       url: docker.io/getlago/front:v1.50.0
-
+ 
     envVars:
+
       - key: API_URL
+
         value: https://lago-api-qi44.onrender.com
-
+ 
       - key: LAGO_DOMAIN
+
         value: https://lago-front-06kx.onrender.com
-
+ 
       - key: APP_ENV
+
         value: production
-
+ 
       - key: LAGO_DISABLE_SIGNUP
-        value: "false"
 
+        value: "false"
+ 
       - key: LAGO_DISABLE_PDF_GENERATION
-        value: "true"
+
+        value: "false"
+ 
