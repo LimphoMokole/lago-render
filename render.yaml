@@ -1,11 +1,3 @@
-databases:
-  - name: lago-postgres
-    databaseName: lago
-    user: lago
-    plan: free
-    region: frankfurt
- 
- 
 services:
  
   # ============================================================
@@ -21,6 +13,7 @@ services:
  
   # ============================================================
   # Lago API
+  # TEMPORARY: Run Azure PostgreSQL migrations
   # ============================================================
  
   - type: web
@@ -32,23 +25,15 @@ services:
     image:
       url: docker.io/getlago/api:v1.50.0
  
-    # Run Lago migrations against Azure PostgreSQL,
-    # then start the Lago API.
-    dockerCommand: sh -c "bundle exec rails db:migrate && ./scripts/start.api.sh"
+    # TEMPORARY migration command
+    dockerCommand: bundle exec rails db:migrate
  
     healthCheckPath: /health
  
     envVars:
  
-      # IMPORTANT:
-      # Set DATABASE_URL manually in Render.
-      #
-      # It should have this structure:
-      #
-      # postgresql://whatsapp_admin:PASSWORD@processmanagementdatasource.postgres.database.azure.com:5432/lago?sslmode=require
-      #
-      # Do NOT put the real password in Git/YAML.
- 
+      # Azure PostgreSQL connection string
+      # Configure the actual value in Render Environment.
       - key: DATABASE_URL
         sync: false
  
@@ -190,7 +175,6 @@ services:
  
   # ============================================================
   # Lago Clock Worker
-  # Handles scheduled / recurring billing
   # ============================================================
  
   - type: worker
